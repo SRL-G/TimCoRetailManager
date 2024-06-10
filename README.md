@@ -1,2 +1,3 @@
-# TimCo Retail Manager
-A retail management system built by TimCo Enterprise Solutions.
+# TimCo Retail Manager (Demo Project for Future Use)
+
+A demo project showcasing a retail management system.
