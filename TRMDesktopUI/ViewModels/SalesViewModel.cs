@@ -2,19 +2,42 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using TRMDesktopUI.Library.Api;
+using TRMDesktopUI.Library.Models;
 
 namespace TRMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-		private BindingList<string> _products, _cart;
-        private string _itemQuantity;
+		private BindingList<ProductModel> _products;
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+        private int _itemQuantity = 1;
+		private IProductEndpoint _productEndpoint;
+        private ProductModel _selectedProduct;
 
-        public BindingList<string> Products
+        public SalesViewModel(IProductEndpoint productEndpoint)
+		{
+			_productEndpoint = productEndpoint;
+		}
+
+        protected override async void OnViewLoaded(object view)
+        {
+            base.OnViewLoaded(view);
+            await LoadProducts();
+        }
+
+        private async Task LoadProducts()
+		{
+            var productList = await _productEndpoint.GetAll();
+            Products = new BindingList<ProductModel>(productList);
+        }
+
+        public BindingList<ProductModel> Products
 		{
 			get { return _products; }
 			set
@@ -24,17 +47,29 @@ namespace TRMDesktopUI.ViewModels
 			}
 		}
 
-		public string ItemQuanity
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set
+            {
+                _selectedProduct = value;
+                NotifyOfPropertyChange(() => SelectedProduct);
+                NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+
+		public int ItemQuantity
 		{
 			get { return _itemQuantity; }
 			set
 			{
 				_itemQuantity = value;
-				NotifyOfPropertyChange(() => ItemQuanity);
+				NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(() => CanAddToCart);
 			}
 		}
 
-		public BindingList<string> Cart
+		public BindingList<CartItemModel> Cart
 		{
 			get { return _cart; }
 			set
@@ -48,8 +83,13 @@ namespace TRMDesktopUI.ViewModels
 		{
 			get
 			{
-				// TODO - Replace with calculation
-				return "0.00$";
+                // TODO - Replace with calculation
+                decimal subTotal = 0;
+                foreach (CartItemModel item in Cart)
+                {
+                    subTotal += (item.Product.RetailPrice * item.QuantityInCart);
+                }
+                return subTotal.ToString("C", new CultureInfo("en-US"));
 			}
 		}
 
@@ -79,6 +119,10 @@ namespace TRMDesktopUI.ViewModels
 
 				//Make sure something is selected
 				//Make sure there is an item quantity
+                if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
+                {
+                    output = true;
+                }
 
 				return output;
 			}
@@ -86,8 +130,29 @@ namespace TRMDesktopUI.ViewModels
 
 		public void AddToCart()
 		{
+            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
 
-		}
+            if (existingItem != null)
+            {
+                existingItem.QuantityInCart += ItemQuantity;
+                // HACK - There should be a better way of refreshing the cart display
+                Cart.Remove(existingItem);
+                Cart.Add(existingItem);
+            }
+            else
+            {
+                CartItemModel item = new CartItemModel()
+                {
+                    Product = SelectedProduct,
+                    QuantityInCart = ItemQuantity
+                };
+                Cart.Add(item);
+            }
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Cart);
+        }
 
         public bool CanRemoveFromCart
         {
@@ -101,9 +166,9 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-        public void RemoveToCart()
+        public void RemoveFromCart()
         {
-
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public bool CanCheckOut
