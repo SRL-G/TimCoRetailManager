@@ -1,8 +1,5 @@
 ﻿using Caliburn.Micro;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using TRMDesktopUI.EventModels;
 using TRMDesktopUI.Library.Api;
@@ -11,7 +8,9 @@ namespace TRMDesktopUI.ViewModels
 {
     public class LoginViewModel : Screen
     {
-        private string _username, _password, _errorMessage;
+        private string _username = "sariel@goldvarg.com";
+        private string _password = "Pwd12345.";
+        private string _errorMessage;
         private IAPIHelper _apiHelper;
         private IEventAggregator _events;
 

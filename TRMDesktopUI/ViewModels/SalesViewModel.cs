@@ -1,12 +1,8 @@
 ﻿using Caliburn.Micro;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using TRMDesktopUI.Library.Api;
 using TRMDesktopUI.Library.Helpers;
 using TRMDesktopUI.Library.Models;
@@ -15,18 +11,20 @@ namespace TRMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-		private BindingList<ProductModel> _products;
+        private BindingList<ProductModel> _products;
         private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
         private int _itemQuantity = 1;
-		private IProductEndpoint _productEndpoint;
+        private IProductEndpoint _productEndpoint;
         private ProductModel _selectedProduct;
         private IConfigHelper _configHelper;
+        private ISaleEndpoint _saleEndpoint;
 
-        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
-		{
-			_productEndpoint = productEndpoint;
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint)
+        {
+            _productEndpoint = productEndpoint;
             _configHelper = configHelper;
-		}
+            _saleEndpoint = saleEndpoint;
+        }
 
         protected override async void OnViewLoaded(object view)
         {
@@ -35,20 +33,20 @@ namespace TRMDesktopUI.ViewModels
         }
 
         private async Task LoadProducts()
-		{
+        {
             var productList = await _productEndpoint.GetAll();
             Products = new BindingList<ProductModel>(productList);
         }
 
         public BindingList<ProductModel> Products
-		{
-			get { return _products; }
-			set
-			{
-				_products = value;
-				NotifyOfPropertyChange(() => Products);
-			}
-		}
+        {
+            get { return _products; }
+            set
+            {
+                _products = value;
+                NotifyOfPropertyChange(() => Products);
+            }
+        }
 
         public ProductModel SelectedProduct
         {
@@ -61,34 +59,34 @@ namespace TRMDesktopUI.ViewModels
             }
         }
 
-		public int ItemQuantity
-		{
-			get { return _itemQuantity; }
-			set
-			{
-				_itemQuantity = value;
-				NotifyOfPropertyChange(() => ItemQuantity);
+        public int ItemQuantity
+        {
+            get { return _itemQuantity; }
+            set
+            {
+                _itemQuantity = value;
+                NotifyOfPropertyChange(() => ItemQuantity);
                 NotifyOfPropertyChange(() => CanAddToCart);
-			}
-		}
+            }
+        }
 
-		public BindingList<CartItemModel> Cart
-		{
-			get { return _cart; }
-			set
-			{
-				_cart = value;
-				NotifyOfPropertyChange(() => Cart);
-			}
-		}
+        public BindingList<CartItemModel> Cart
+        {
+            get { return _cart; }
+            set
+            {
+                _cart = value;
+                NotifyOfPropertyChange(() => Cart);
+            }
+        }
 
-		public string SubTotal
-		{
-			get
-			{
+        public string SubTotal
+        {
+            get
+            {
                 return CalculateSubTotal().ToString("C", new CultureInfo("en-US"));
             }
-		}
+        }
 
         private decimal CalculateSubTotal()
         {
@@ -132,24 +130,24 @@ namespace TRMDesktopUI.ViewModels
         }
 
         public bool CanAddToCart
-		{
-			get
-			{
-				bool output = false;
+        {
+            get
+            {
+                bool output = false;
 
-				//Make sure something is selected
-				//Make sure there is an item quantity
+                //Make sure something is selected
+                //Make sure there is an item quantity
                 if (ItemQuantity > 0 && SelectedProduct?.QuantityInStock >= ItemQuantity)
                 {
                     output = true;
                 }
 
-				return output;
-			}
-		}
+                return output;
+            }
+        }
 
-		public void AddToCart()
-		{
+        public void AddToCart()
+        {
             CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
 
             if (existingItem != null)
@@ -173,6 +171,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanRemoveFromCart
@@ -192,6 +191,7 @@ namespace TRMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanCheckOut
@@ -201,14 +201,29 @@ namespace TRMDesktopUI.ViewModels
                 bool output = false;
 
                 //Make sure something is in the cart
+                if (Cart.Count > 0)
+                {
+                    output = true;
+                }
 
                 return output;
             }
         }
 
-        public void CheckOut()
+        public async Task CheckOut()
         {
+            // Create a SaleModel and post to the API
+            SaleModel sale = new SaleModel();
+            foreach (var item in Cart)
+            {
+                sale.SaleDetails.Add(new SaleDetailModel()
+                {
+                    ProductID = item.Product.Id,
+                    Quantity = item.QuantityInCart
+                });
+            }
 
+            await _saleEndpoint.PostSale(sale);
         }
     }
 }
