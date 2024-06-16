@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http.Headers;
-using TRMDesktopUI.Models;
 using System.Configuration;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using TRMDesktopUI.Library.Models;
+using TRMDesktopUI.Models;
 
 namespace TRMDesktopUI.Library.Api
 {
@@ -67,11 +65,11 @@ namespace TRMDesktopUI.Library.Api
             _apiClient.DefaultRequestHeaders.Clear();
             _apiClient.DefaultRequestHeaders.Accept.Clear();
             _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer { token }");
+            _apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
             using (HttpResponseMessage response = await _apiClient.GetAsync("/api/User"))
             {
-                if (response.IsSuccessStatusCode )
+                if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadAsAsync<LoggedInUserModel>();
                     _loggedInUser.CreatedDate = result.CreatedDate;
@@ -79,7 +77,7 @@ namespace TRMDesktopUI.Library.Api
                     _loggedInUser.FirstName = result.FirstName;
                     _loggedInUser.LastName = result.LastName;
                     _loggedInUser.Id = result.Id;
-                    _loggedInUser.Token = result.Token;
+                    _loggedInUser.Token = token;
                 }
                 else
                 {

@@ -7,6 +7,6 @@
 AS
 BEGIN
 	SET NOCOUNT ON
-	INSERT INTO dbo.SaleDetail (SaleId, ProductId, Quantity, PurchasePrice, Tax)
+	INSERT INTO dbo.SaleDetail(SaleId, ProductId, Quantity, PurchasePrice, Tax)
 	VALUES (@SaleId, @ProductId, @Quantity, @PurchasePrice, @Tax)
 END
