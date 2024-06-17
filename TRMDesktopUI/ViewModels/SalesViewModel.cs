@@ -155,7 +155,7 @@ namespace TRMDesktopUI.ViewModels
 
             foreach (CartItemDisplayModel item in Cart)
             {
-                subTotal += (item.Product.RetailPrice * item.QuantityInCart);
+                subTotal += item.Product.RetailPrice * item.QuantityInCart;
             }
 
             return subTotal;

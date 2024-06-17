@@ -39,7 +39,7 @@ namespace TRMApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/User/Admin/GetAllUsers")]
+        [Route("Admin/GetAllUsers")]
         public List<ApplicationUserModel> GetAllUsers()
         {
             List<ApplicationUserModel> output = new List<ApplicationUserModel>();
@@ -57,7 +57,7 @@ namespace TRMApi.Controllers
                     Email = user.Email
                 };
 
-                u.Roles = userRoles.Where(r => r.RoleId == u.Id).ToDictionary(key => key.RoleId, val => val.Name);
+                u.Roles = userRoles.Where(x => x.UserId == u.Id).ToDictionary(key => key.RoleId, val => val.Name);
 
                 //foreach (var r in user.Roles)
                 //{
@@ -72,7 +72,7 @@ namespace TRMApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/User/Admin/GetAllRoles")]
+        [Route("Admin/GetAllRoles")]
         public Dictionary<string, string> GetAllRoles()
         {
             var roles = _context.Roles.ToDictionary(x => x.Id, x => x.Name);
@@ -81,7 +81,7 @@ namespace TRMApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/AddRole")]
+        [Route("Admin/AddRole")]
         public async Task AddRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.userId);
@@ -90,7 +90,7 @@ namespace TRMApi.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/RemoveRole")]
+        [Route("Admin/RemoveRole")]
         public async Task RemoveRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.userId);
