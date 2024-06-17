@@ -1,4 +1,6 @@
-﻿using System.Configuration;
+﻿
+
+using System.Configuration;
 
 namespace TRMDesktopUI.Library.Helpers
 {
