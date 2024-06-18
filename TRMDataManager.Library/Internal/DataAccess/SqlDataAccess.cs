@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace TRMDataManager.Library.Internal.DataAccess
 {
-    public class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
         private readonly IConfiguration _config;
 
@@ -96,11 +96,5 @@ namespace TRMDataManager.Library.Internal.DataAccess
             _transaction = null;
             _connection = null;
         }
-
-        // Open connect/start transaction method
-        // load using the stransaction
-        // save using the transaction
-        // close connection/stop transaction method
-        // dispose
     }
 }
