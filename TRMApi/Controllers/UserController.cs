@@ -21,7 +21,9 @@ namespace TRMApi.Controllers
         private UserManager<IdentityUser> _userManager;
         private readonly IUserData _userData;
 
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IUserData userData)
+        public UserController(ApplicationDbContext context,
+                              UserManager<IdentityUser> userManager,
+                              IUserData userData)
         {
             _context = context;
             _userManager = userManager;

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using TRMDataManager.Library.Internal.DataAccess;
@@ -12,7 +11,7 @@ namespace TRMDataManager.Library.DataAccess
         private readonly IProductData _productData;
         private readonly ISqlDataAccess _sql;
 
-        public SaleData(IConfiguration config, IProductData productData, ISqlDataAccess sql)
+        public SaleData(IProductData productData, ISqlDataAccess sql)
         {
             _productData = productData;
             _sql = sql;

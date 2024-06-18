@@ -96,5 +96,11 @@ namespace TRMDataManager.Library.Internal.DataAccess
             _transaction = null;
             _connection = null;
         }
+
+        // Open connect/start transaction method
+        // load using the stransaction
+        // save using the transaction
+        // close connection/stop transaction method
+        // dispose
     }
 }

@@ -37,8 +37,8 @@ namespace TRMApi
             services.AddRazorPages();
 
             // Personal Services
-            services.AddTransient<IInventoryData, InventoryData>();
             services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+            services.AddTransient<IInventoryData, InventoryData>();
             services.AddTransient<IProductData, ProductData>();
             services.AddTransient<ISaleData, SaleData>();
             services.AddTransient<IUserData, UserData>();
